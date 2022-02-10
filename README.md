@@ -8,7 +8,7 @@
 ```elm
 suite : Test
 suite =
-    Sequence.describe "sequencial testing"
+    Sequence.describe "sequential testing"
         |> Sequence.map (\_ -> 4)
         |> Sequence.andThen "The result should be even."
             (\n ->
