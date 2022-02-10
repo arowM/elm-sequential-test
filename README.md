@@ -1,6 +1,6 @@
 # elm-sequential-test
 
-[![Build Status](https://travis-ci.com/arowM/elm-sequential-test.svg?branch=main)](https://travis-ci.com/arowM/elm-sequential-test)  
+[![Build Status](https://app.travis-ci.com/arowM/elm-sequential-test.svg?branch=main)](https://app.travis-ci.com/arowM/elm-sequential-test)  
 [Document](https://package.elm-lang.org/packages/arowM/elm-sequential-test/latest/)  
 
 # A Quick Example
