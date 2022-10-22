@@ -124,5 +124,9 @@ cases f (Sequence seqA) =
                         , tests = acc.tests ++ seq.tests
                         }
                 )
-                (pass ())
+                (Sequence
+                    { value = Just ()
+                    , tests = seqA.tests
+                    }
+                )
                 (f a)
