@@ -1,10 +1,10 @@
 {
   "private": true,
   "scripts": {
-    "format": "elm-format src test",
+    "format": "elm-format src tests",
     "start": "elm-doc-preview --port=8020",
     "review": "elm-review --fix",
-    "test": "elm-review && elm-test && elm-format --validate src && elm make --docs=/tmp/docs.json"
+    "test": "elm-review && elm-test && elm-format --validate src tests && elm make --docs=/tmp/docs.json"
   },
   "devDependencies": {
     "elm-doc-preview": "^5.0.3",
