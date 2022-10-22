@@ -7,6 +7,7 @@ module Test.Sequence exposing
     , andThen
     , assert
     , cases
+    , namedCases
     )
 
 {-| Sequencial testing.
@@ -19,6 +20,7 @@ module Test.Sequence exposing
 @docs andThen
 @docs assert
 @docs cases
+@docs namedCases
 
 -}
 
@@ -130,3 +132,25 @@ cases f (Sequence seqA) =
                     }
                 )
                 (f a)
+
+
+{-| -}
+namedCases : (a -> List ( String, Sequence () )) -> Sequence a -> Sequence ()
+namedCases f (Sequence seqA) =
+    case seqA.value of
+        Nothing ->
+            Sequence
+                { value = Nothing
+                , tests = seqA.tests
+                }
+
+        Just a ->
+            Sequence
+                { value = Just ()
+                , tests =
+                    seqA.tests
+                        ++ (f a
+                                |> List.map
+                                    (\( str, seq ) -> run str seq)
+                           )
+                }

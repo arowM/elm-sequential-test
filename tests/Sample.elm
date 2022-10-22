@@ -1,8 +1,8 @@
 module Sample exposing (suite)
 
-import Test.Sequence as SeqTest
 import Expect
 import Test exposing (Test)
+import Test.Sequence as SeqTest
 
 
 suite : Test
@@ -16,16 +16,17 @@ suite =
                             SeqTest.fail str <|
                                 \_ ->
                                     Expect.fail "should have been an integer."
+
                         Just n ->
                             SeqTest.pass n
                 )
             |> SeqTest.assert "Current value is 34" (Expect.equal 34)
             |> SeqTest.map (\n -> n * 10)
             |> SeqTest.assert "Current value is 340" (Expect.equal 340)
-            |> SeqTest.cases
+            |> SeqTest.namedCases
                 (\n ->
-                    [ sequence1 n
-                    , sequence2 n
+                    [ ( "Sequence1", sequence1 n )
+                    , ( "Sequence2", sequence2 n )
                     ]
                 )
             |> SeqTest.run "Sequential test"
