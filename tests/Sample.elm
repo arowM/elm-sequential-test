@@ -1,13 +1,10 @@
-# elm-sequential-test
+module Sample exposing (suite)
 
-[![test](https://github.com/arowM/elm-sequential-test/actions/workflows/test.yaml/badge.svg)](https://github.com/arowM/elm-sequential-test/actions/workflows/test.yaml)
-[Document](https://package.elm-lang.org/packages/arowM/elm-sequential-test/latest/)  
+import Test.Sequence as SeqTest
+import Expect
+import Test exposing (Test)
 
-Testing library for a sequence of tests.
 
-# A Quick Example
-
-```elm
 suite : Test
 suite =
     Test.describe "Sequential tests"
@@ -49,4 +46,3 @@ sequence2 n =
         |> SeqTest.assert ("Current value is greater than " ++ String.fromInt n)
             (Expect.greaterThan n)
         |> SeqTest.map (\_ -> ())
-```

@@ -1,20 +1,24 @@
 module Test.Sequence exposing
     ( Sequence
     , run
-    , describe
+    , pass
+    , fail
     , map
     , andThen
     , assert
+    , cases
     )
 
 {-| Sequencial testing.
 
 @docs Sequence
 @docs run
-@docs describe
+@docs pass
+@docs fail
 @docs map
 @docs andThen
 @docs assert
+@docs cases
 
 -}
 
@@ -24,56 +28,101 @@ import Test exposing (Test)
 
 {-| -}
 type Sequence a
-    = Sequence String (List Test) (Maybe a)
+    = Sequence (Sequence_ a)
 
 
 {-| -}
-describe : String -> Sequence ()
-describe str =
-    Sequence str [] (Just ())
+type alias Sequence_ a =
+    { value : Maybe a
+    , tests : List Test
+    }
 
 
 {-| -}
-run : Sequence a -> Test
-run (Sequence str tests _) =
-    Test.describe str (List.reverse tests)
+pass : a -> Sequence a
+pass a =
+    Sequence
+        { value = Just a
+        , tests = []
+        }
 
 
 {-| -}
-andThen : String -> (a -> Maybe b) -> Sequence a -> Sequence b
-andThen description f (Sequence str tests ma) =
-    case ma of
-        Nothing ->
-            Sequence str tests Nothing
-
-        Just a ->
-            let
-                mb =
-                    f a
-            in
-            Sequence str
-                (Test.test
-                    description
-                    (\_ -> Expect.true "Expected the `andThen` to be passed." (mb /= Nothing))
-                    :: tests
-                )
-                mb
+fail : String -> (() -> Expectation) -> Sequence a
+fail description exp =
+    Sequence
+        { value = Nothing
+        , tests = [ Test.test description exp ]
+        }
 
 
 {-| -}
 map : (a -> b) -> Sequence a -> Sequence b
-map f (Sequence str tests ma) =
-    Sequence str tests (Maybe.map f ma)
+map f (Sequence seq) =
+    Sequence
+        { value = Maybe.map f seq.value
+        , tests = seq.tests
+        }
+
+
+{-| -}
+andThen : (a -> Sequence b) -> Sequence a -> Sequence b
+andThen f (Sequence seqA) =
+    case seqA.value of
+        Nothing ->
+            Sequence
+                { value = Nothing
+                , tests = seqA.tests
+                }
+
+        Just a ->
+            let
+                (Sequence seqB) =
+                    f a
+            in
+            Sequence
+                { value = seqB.value
+                , tests = seqA.tests ++ seqB.tests
+                }
 
 
 {-| -}
 assert : String -> (a -> Expectation) -> Sequence a -> Sequence a
-assert description f (Sequence str tests ma) =
-    case ma of
+assert description f (Sequence seq) =
+    case seq.value of
         Just a ->
-            Sequence str
-                (Test.test description (\_ -> f a) :: tests)
-                ma
+            Sequence
+                { value = seq.value
+                , tests = seq.tests ++ [ Test.test description <| \_ -> f a ]
+                }
 
         Nothing ->
-            Sequence str tests ma
+            Sequence seq
+
+
+{-| -}
+run : String -> Sequence a -> Test
+run description (Sequence seq) =
+    Test.describe description seq.tests
+
+
+{-| -}
+cases : (a -> List (Sequence ())) -> Sequence a -> Sequence ()
+cases f (Sequence seqA) =
+    case seqA.value of
+        Nothing ->
+            Sequence
+                { value = Nothing
+                , tests = seqA.tests
+                }
+
+        Just a ->
+            List.foldl
+                (\(Sequence seq) (Sequence acc) ->
+                    Sequence
+                        { value = Just ()
+                        , tests = acc.tests ++ seq.tests
+                        }
+                )
+                (pass ())
+                (f a)
