@@ -3,7 +3,7 @@
     "name": "arowM/elm-sequential-test",
     "summary": "Testing library for a sequence of tests.",
     "license": "MIT",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "exposed-modules": [
         "Test.Sequence"
     ],
