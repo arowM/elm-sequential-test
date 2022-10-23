@@ -1,6 +1,7 @@
 module Test.Sequence exposing
     ( Sequence
     , run
+    , test
     , pass
     , fail
     , map
@@ -14,6 +15,7 @@ module Test.Sequence exposing
 
 @docs Sequence
 @docs run
+@docs test
 @docs pass
 @docs fail
 @docs map
@@ -54,6 +56,15 @@ fail : String -> (() -> Expectation) -> Sequence a
 fail description exp =
     Sequence
         { value = Nothing
+        , tests = [ Test.test description exp ]
+        }
+
+
+{-| -}
+test : String -> (() -> Expectation) -> Sequence ()
+test description exp =
+    Sequence
+        { value = Just ()
         , tests = [ Test.test description exp ]
         }
 
