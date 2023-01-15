@@ -4,6 +4,7 @@ module Test.Sequence exposing
     , test
     , pass
     , fail
+    , describe
     , map
     , andThen
     , assert
@@ -18,6 +19,7 @@ module Test.Sequence exposing
 @docs test
 @docs pass
 @docs fail
+@docs describe
 @docs map
 @docs andThen
 @docs assert
@@ -30,7 +32,8 @@ import Expect exposing (Expectation)
 import Test exposing (Test)
 
 
-{-| -}
+{-| Represents sequence of tests with its result `a`.
+-}
 type Sequence a
     = Sequence (Sequence_ a)
 
@@ -42,7 +45,8 @@ type alias Sequence_ a =
     }
 
 
-{-| -}
+{-| `Sequence` that always passes with specified value `a`.
+-}
 pass : a -> Sequence a
 pass a =
     Sequence
@@ -51,7 +55,22 @@ pass a =
         }
 
 
-{-| -}
+{-| `Sequence` that always fails.
+
+    import Expect
+
+    someSequence
+        |> andThen
+            (\str ->
+                case String.toInt str of
+                    Nothing ->
+                        fail "Not an integer" <|
+                            \() -> Expect.fail str
+                    Just n ->
+                        pass n
+            )
+
+-}
 fail : String -> (() -> Expectation) -> Sequence a
 fail description exp =
     Sequence
@@ -60,7 +79,20 @@ fail description exp =
         }
 
 
-{-| -}
+{-| Apply a description to the given sequence of tests.
+-}
+describe : String -> Sequence a -> Sequence a
+describe description (Sequence seq) =
+    Sequence
+        { value = seq.value
+        , tests =
+            [ Test.describe description seq.tests
+            ]
+        }
+
+
+{-| Construct a new `Sequence`.
+-}
 test : String -> (() -> Expectation) -> Sequence ()
 test description exp =
     Sequence
@@ -99,7 +131,8 @@ andThen f (Sequence seqA) =
                 }
 
 
-{-| -}
+{-| Append a new expectation.
+-}
 assert : String -> (a -> Expectation) -> Sequence a -> Sequence a
 assert description f (Sequence seq) =
     case seq.value of
